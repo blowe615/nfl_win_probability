@@ -3,7 +3,8 @@ clean_plays <- function(pbp_data) {
     # for a win probability model
     
     # Input:
-    # pbp_data: tibble containing at minimum the following 15 columns in any order:
+    # pbp_data: tibble containing at minimum the following 15 columns of nfl 
+    # play-by-play data in any order:
     #   game_id: chr, unique identifier for each game
     #   home_team: chr, home team abbreviation
     #   away_team: chr, away team abbreviation
