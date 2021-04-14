@@ -19,7 +19,7 @@ I recently took some Coursera courses on Tableau and R as part of my ongoing eff
 * `export_wp.R`: R function to join win probability predictions to play-by-play data for the purposes of generating win probability plots.  This function also adds extra rows for cleaner plotting.
 * `train_wp_model.R`: R script to load, clean and filter play-by-play data for the 1999-2020 season and then train the XGBoost win probability model. To be run after cross validation.
 * `train_wp_model_LOSO.R`: R script to load, clean and filter play-by-play data for the 1999-2020 season and then train the XGBoost win probability model using Leave One Season Out (LOSO) cross validation.
-* `plot_wp_model_LOSO.R`: R script to mutate output of `train_wp_model_LOSO` to make plots for cross validation.
+* `plot_wp_model_LOSO.R`: R function to mutate output of `train_wp_model_LOSO` to make plots for cross validation.
 * `win_prob_plot.twb`: Tableau Desktop workbook to make the interactive win probability plot.
 * `SB_plays.csv`: CSV file containing play-by-play data with win probability from Super Bowl LV between the Kansas City Chiefs and Tampa Bay Buccaneers.  This is the output of `export_wp`.
 * `teams_colors_logos.csv`: CSV file containing hex codes for NFL team colors and URLs for team logos.
