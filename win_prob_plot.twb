@@ -15,7 +15,7 @@
     <WindowsPersistSimpleIdentifiers />
     <WorksheetBackgroundTransparency />
   </document-format-change-manifest>
-  <repository-location id='win_prob_plot' path='/workbooks' revision='1.0' />
+  <repository-location id='win_prob_plot' path='/workbooks' revision='1.1' />
   <preferences>
     <preference name='ui.encoding.shelf.height' value='24' />
     <preference name='ui.shelf.height' value='26' />
@@ -25,7 +25,7 @@
       <connection class='federated'>
         <named-connections>
           <named-connection caption='SB_plays' name='textscan.1xn1kry1czbzu413n2dlr0lua9vu'>
-            <connection class='textscan' directory='/Users/blowe615/Dropbox/dataScience/rProgramming/nflfastR' filename='SB_plays.csv' password='' server='' workgroup-auth-mode='as-is' />
+            <connection class='textscan' directory='/Users/blowe615/Dropbox/dataScience/rProgramming/nflfastR/win_prob' filename='SB_plays.csv' password='' server='' workgroup-auth-mode='as-is' />
           </named-connection>
         </named-connections>
         <_.fcp.ObjectModelEncapsulateLegacy.false...relation all='true' name='SB_plays.csv+' type='union'>
@@ -6067,11 +6067,11 @@
       <column-instance column='[my_away_wp]' derivation='Sum' name='[sum:my_away_wp:qk]' pivot='key' type='quantitative' />
       <column-instance column='[my_away_wp_post]' derivation='Sum' name='[sum:my_away_wp_post:qk]' pivot='key' type='quantitative' />
       <extract _.fcp.ObjectModelExtractV2.true...object-id='' count='-1' enabled='true' units='records'>
-        <connection access_mode='readonly' authentication='auth-none' author-locale='en_US' class='hyper' dbname='/Users/blowe615/Documents/My Tableau Repository/Datasources/SB_plays.hyper' default-settings='yes' schema='Extract' sslmode='' tablename='Extract' update-time='03/23/2021 09:25:32 PM' username='tableau_internal_user'>
+        <connection access_mode='readonly' authentication='auth-none' author-locale='en_US' class='hyper' dbname='/Users/blowe615/Documents/My Tableau Repository/Datasources/SB_plays.hyper' default-settings='yes' schema='Extract' sslmode='' tablename='Extract' update-time='04/15/2021 09:09:16 PM' username='tableau_internal_user'>
           <_.fcp.ObjectModelEncapsulateLegacy.false...relation name='Extract' table='[Extract].[Extract]' type='table' />
           <_.fcp.ObjectModelEncapsulateLegacy.true...relation name='Extract' table='[Extract].[Extract]' type='table' />
           <refresh>
-            <refresh-event add-from-file-path='SB_plays' increment-value='%null%' refresh-type='create' rows-inserted='166' timestamp-start='2021-03-23 21:25:32.947' />
+            <refresh-event add-from-file-path='SB_plays' increment-value='%null%' refresh-type='create' rows-inserted='166' timestamp-start='2021-04-15 21:09:16.609' />
           </refresh>
           <metadata-records>
             <metadata-record class='column'>
@@ -6640,6 +6640,22 @@
               <bucket>&quot;[federated.1ib8i3s0jxk76x1fymrqv14wz0b1].[sum:WP Home (copy)_6299480370366595079:qk]&quot;</bucket>
             </map>
           </encoding>
+          <encoding attr='color' field='[none:Calculation_5293066585127497728:nk]' type='palette'>
+            <map to='#22150c'>
+              <bucket>&quot;TB&quot;</bucket>
+            </map>
+            <map to='#e31837'>
+              <bucket>&quot;KC&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:Winning Team Away (copy)_6070078259401809922:nk]' type='palette'>
+            <map to='#22150c'>
+              <bucket>&quot;TB&quot;</bucket>
+            </map>
+            <map to='#e31837'>
+              <bucket>&quot;KC&quot;</bucket>
+            </map>
+          </encoding>
           <encoding attr='color' field='[attr:Calculation_5293066585127497728:nk]' type='palette'>
             <map to='#000000'>
               <bucket>&quot;TIE&quot;</bucket>
@@ -6653,22 +6669,6 @@
           </encoding>
           <encoding attr='color' field='[attr:Winning Team Away (copy)_6070078259401809922:nk]' type='palette'>
             <map to='#1c2d25'>
-              <bucket>&quot;TB&quot;</bucket>
-            </map>
-            <map to='#e31837'>
-              <bucket>&quot;KC&quot;</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:Calculation_5293066585127497728:nk]' type='palette'>
-            <map to='#22150c'>
-              <bucket>&quot;TB&quot;</bucket>
-            </map>
-            <map to='#e31837'>
-              <bucket>&quot;KC&quot;</bucket>
-            </map>
-          </encoding>
-          <encoding attr='color' field='[none:Winning Team Away (copy)_6070078259401809922:nk]' type='palette'>
-            <map to='#22150c'>
               <bucket>&quot;TB&quot;</bucket>
             </map>
             <map to='#e31837'>
@@ -8306,8 +8306,8 @@
         <devicelayout auto-generated='true' name='Phone'>
           <size maxheight='1600' minheight='1600' sizing-mode='vscroll' />
           <zones>
-            <zone _.fcp.SetMembershipControl.false...type='layout-basic' _.fcp.SetMembershipControl.true...type-v2='layout-basic' h='100000' id='76' w='100000' x='0' y='0'>
-              <zone _.fcp.SetMembershipControl.false...type='layout-flow' _.fcp.SetMembershipControl.true...type-v2='layout-flow' h='98000' id='75' param='vert' w='98400' x='800' y='1000'>
+            <zone _.fcp.SetMembershipControl.false...type='layout-basic' _.fcp.SetMembershipControl.true...type-v2='layout-basic' h='100000' id='80' w='100000' x='0' y='0'>
+              <zone _.fcp.SetMembershipControl.false...type='layout-flow' _.fcp.SetMembershipControl.true...type-v2='layout-flow' h='98000' id='79' param='vert' w='98400' x='800' y='1000'>
                 <zone fixed-size='280' h='87125' id='64' is-fixed='true' name='Sheet 1 (2)' show-title='false' w='94000' x='2100' y='5250'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
@@ -8537,8 +8537,8 @@
         <devicelayout auto-generated='true' name='Phone'>
           <size maxheight='1350' minheight='1350' sizing-mode='vscroll' />
           <zones>
-            <zone _.fcp.SetMembershipControl.false...type='layout-basic' _.fcp.SetMembershipControl.true...type-v2='layout-basic' h='100000' id='76' w='100000' x='0' y='0'>
-              <zone _.fcp.SetMembershipControl.false...type='layout-flow' _.fcp.SetMembershipControl.true...type-v2='layout-flow' h='98000' id='75' param='vert' w='98400' x='800' y='1000'>
+            <zone _.fcp.SetMembershipControl.false...type='layout-basic' _.fcp.SetMembershipControl.true...type-v2='layout-basic' h='100000' id='80' w='100000' x='0' y='0'>
+              <zone _.fcp.SetMembershipControl.false...type='layout-flow' _.fcp.SetMembershipControl.true...type-v2='layout-flow' h='98000' id='79' param='vert' w='98400' x='800' y='1000'>
                 <zone fixed-size='280' h='99125' id='64' is-fixed='true' name='Sheet 2' w='96900' x='3100' y='625'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
