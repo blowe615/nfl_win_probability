@@ -111,12 +111,26 @@ export_wp <- function(model,pbp_data) {
                 quarter_seconds_remaining = round(dummy_qtr_times), 
                 winning_team = wp_chgs$winning_team,
                 my_wp=0.5,my_home_wp = 0.5, my_away_wp = 0.5) %>%
+        # add row at beginning of the game to help with plot shading
+        add_row(game_seconds_remaining = 3600, quarter_seconds_remaining = 900,
+                total_home_score=0, total_away_score=0,
+                my_wp=0.5, my_home_wp = 0.5, my_away_wp = 0.5) %>%
+        # add row at end of game to assign wp of 1 to winning team to help with plot shading
+        add_row(game_seconds_remaining = 0, quarter_seconds_remaining = 0,
+                my_home_wp = case_when(last(pbp_filtered$result) > 0 ~ 1, 
+                                       last(pbp_filtered$result) < 0 ~ 0,
+                                       last(pbp_filtered$result) == 0 ~ 0.5),
+                my_away_wp = 1-my_home_wp) %>%
+        # add row at end of the game to help with plot shading
+        add_row(game_seconds_remaining = 0, quarter_seconds_remaining = 0,
+                my_wp=0.5, my_home_wp = 0.5, my_away_wp = 0.5) %>%
         # sort pbp data by game_seconds_remaining
         arrange(-game_seconds_remaining)
     
     # fill in missing values in dummy plays from previous rows
     pbp_filtered <- pbp_filtered %>%
-        fill(c(total_home_score,total_away_score,qtr,home_team,away_team,posteam,defteam))
+        fill(c(total_home_score,total_away_score,qtr,home_team,away_team,posteam,defteam),
+             .direction = "downup")
     
     # return filtered pbp data with columns needed for plotting
     return(pbp_filtered %>%
