@@ -38,38 +38,42 @@ export_wp <- function(model,pbp_data) {
     #   desc
     #   total_home_score
     #   total_away_score
-    #   my_wp: win probability for the possessing team from the input model
-    #   my_home_wp: win probability for the home team from the input model
-    #   my_away_wp: win probability for the away team from the input model
+    #   wp: win probability for the possessing team from the input model
+    #   home_wp: win probability for the home team from the input model
+    #   away_wp: win probability for the away team from the input model
     
     # remove plays with crucial missing data
     pbp_filtered <- pbp_data %>%
         filter(!is.na(down),!is.na(score_differential))
     
+    # drop wp columns if they exist
+    pbp_filtered <- pbp_filtered %>%
+        select(-any_of(c("wp","home_wp","away_wp","home_wp_post","away_wp_post")))
+    
     # call clean_plays function to prepare pbp data for wp model
     model_input <- clean_plays(pbp_filtered)
     
-    # get win probability predictions and rename them as "my_wp"
+    # get win probability predictions and rename them as "wp"
     wp_preds <- as.data.frame(matrix(predict(model,as.matrix(model_input)))) %>%
-        rename(my_wp=V1)
+        rename(wp=V1)
     
-    # append "my_wp" column to filtered pbp data
+    # append "wp" column to filtered pbp data
     pbp_filtered <- pbp_filtered %>%
         bind_cols(wp_preds)
     
     # add new columns for home and away wp based on the wp model
     pbp_filtered<- pbp_filtered %>%
-        mutate(my_home_wp = if_else(posteam==home_team,my_wp,1-my_wp),
-               my_away_wp = if_else(posteam==away_team,my_wp,1-my_wp),
+        mutate(home_wp = if_else(posteam==home_team,wp,1-wp),
+               away_wp = if_else(posteam==away_team,wp,1-wp),
                # add post-play wp for win probability added (wpa)
-               my_home_wp_post = lead(my_home_wp),
-               my_away_wp_post = 1-my_home_wp_post,
-               my_home_wpa = my_home_wp_post - my_home_wp,
-               my_wpa_pos = if_else(posteam==home_team,my_home_wpa,-1*my_home_wpa),
+               home_wp_post = lead(home_wp),
+               away_wp_post = 1-home_wp_post,
+               home_wpa = home_wp_post - home_wp,
+               wpa_pos = if_else(posteam==home_team,home_wpa,-1*home_wpa),
                winning_team = case_when(
-                   my_wp > 0.5 ~ posteam,
-                   my_wp < 0.5 ~ defteam,
-                   my_wp == 0.5 ~ "TIE"),
+                   wp > 0.5 ~ posteam,
+                   wp < 0.5 ~ defteam,
+                   wp == 0.5 ~ "TIE"),
                # add column to flag plays where the winning team changes
                wp_chg = if_else(winning_team!=lead(winning_team),1,0),
                # add column to flag plays where the winning team changed on the
@@ -88,18 +92,18 @@ export_wp <- function(model,pbp_data) {
         pbp_filtered %>%
             # filter plays where winning team changes
             filter(wp_chg==1) %>%
-            select(game_seconds_remaining,winning_team,my_away_wp,wp_chg,wp_chgd,qtr),
+            select(game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr),
         pbp_filtered %>%
             # filter plays where winning team just changed
             filter(wp_chgd==1) %>%
-            select(game_seconds_remaining,winning_team,my_away_wp,wp_chg,wp_chgd,qtr) %>%
+            select(game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr) %>%
             # rename columns with a 2 to avoid duplicates
             rename_with(function(x){paste0(x,"2")}))
     
     # calculate dummy times (plays that didn't happen in the game) by interpolating
     # between the before/after plays
     dummy_times <- (wp_chgs$game_seconds_remaining2 - wp_chgs$game_seconds_remaining)/
-        (wp_chgs$my_away_wp2 - wp_chgs$my_away_wp) * (0.5 - wp_chgs$my_away_wp) +
+        (wp_chgs$away_wp2 - wp_chgs$away_wp) * (0.5 - wp_chgs$away_wp) +
         wp_chgs$game_seconds_remaining
     
     # calculate quarter_time_remaining from game_seconds_remaining
@@ -110,16 +114,45 @@ export_wp <- function(model,pbp_data) {
         add_row(game_seconds_remaining = round(dummy_times),
                 quarter_seconds_remaining = round(dummy_qtr_times), 
                 winning_team = wp_chgs$winning_team,
-                my_wp=0.5,my_home_wp = 0.5, my_away_wp = 0.5) %>%
+                wp=0.5,home_wp = 0.5, away_wp = 0.5) %>%
+        # add row at beginning of the game to help with plot shading
+        add_row(game_seconds_remaining = 3600, quarter_seconds_remaining = 900,
+                total_home_score=0, total_away_score=0,
+                wp=0.5, home_wp = 0.5, away_wp = 0.5) %>%
+        # add row at end of game to assign wp of 1 to winning team to help with plot shading
+        add_row(game_seconds_remaining = 0, quarter_seconds_remaining = 0,
+                home_wp = case_when(last(pbp_filtered$result) > 0 ~ 1, 
+                                       last(pbp_filtered$result) < 0 ~ 0,
+                                       last(pbp_filtered$result) == 0 ~ 0.5),
+                away_wp = 1-home_wp) %>%
+        # add row at end of the game to help with plot shading
+        add_row(game_seconds_remaining = 0, quarter_seconds_remaining = 0,
+                wp=0.5, home_wp = 0.5, away_wp = 0.5) %>%
         # sort pbp data by game_seconds_remaining
         arrange(-game_seconds_remaining)
     
     # fill in missing values in dummy plays from previous rows
     pbp_filtered <- pbp_filtered %>%
-        fill(c(total_home_score,total_away_score,qtr,home_team,away_team,posteam,defteam))
+        fill(c(total_home_score,total_away_score,qtr,home_team,away_team,posteam,defteam),
+             .direction = "downup")
+    
+    # add columns for easier plotting
+    pbp_filtered <- pbp_filtered %>%
+        # add column for elapsed time (inverse of game_seconds_remaining)
+        mutate(elapsed_time = 3600-game_seconds_remaining,
+               # add column to label when away team has at least 50% wp
+               winning_team_away = if_else(away_wp >= 0.5,away_team,home_team),
+               # add column to label when home team has at least 50% wp
+               winning_team_home = if_else(home_wp >= 0.5,home_team,away_team),
+               # add column with away wp floor of 50%
+               away_wp_floor = if_else(away_wp >= 0.5,away_wp,0.5),
+               # add column with home wp ceiling of 50%
+               home_wp_ceil = if_else(away_wp <= 0.5,away_wp,0.5))
     
     # return filtered pbp data with columns needed for plotting
     return(pbp_filtered %>%
                select(home_team,away_team, game_seconds_remaining, quarter_seconds_remaining,
-                      qtr,desc,total_home_score,total_away_score,my_wp,my_home_wp,my_away_wp))
+                      qtr,desc,total_home_score,total_away_score,wp,home_wp,away_wp,
+                      elapsed_time,winning_team_away,winning_team_home,away_wp_floor,
+                      home_wp_ceil))
 }
