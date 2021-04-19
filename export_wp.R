@@ -132,8 +132,18 @@ export_wp <- function(model,pbp_data) {
         fill(c(total_home_score,total_away_score,qtr,home_team,away_team,posteam,defteam),
              .direction = "downup")
     
+    # add columns for easier plotting
+    pbp_filtered <- pbp_filtered %>%
+        # add column for elapsed time (inverse of game_seconds_remaining)
+        mutate(elapsed_time = 3600-game_seconds_remaining,
+               # add column to label when away team has at least 50% wp
+               winning_team_away = if_else(my_away_wp >= 0.5,away_team,home_team),
+               # add column to label when home team has at least 50% wp
+               winning_team_home = if_else(my_home_wp >= 0.5,home_team,away_team))
+    
     # return filtered pbp data with columns needed for plotting
     return(pbp_filtered %>%
                select(home_team,away_team, game_seconds_remaining, quarter_seconds_remaining,
-                      qtr,desc,total_home_score,total_away_score,my_wp,my_home_wp,my_away_wp))
+                      qtr,desc,total_home_score,total_away_score,my_wp,my_home_wp,my_away_wp,
+                      elapsed_time,winning_team_away,winning_team_home))
 }
