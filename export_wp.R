@@ -42,8 +42,19 @@ export_wp <- function(model,pbp_data) {
     #   home_wp: win probability for the home team from the input model
     #   away_wp: win probability for the away team from the input model
     
-    # remove plays with crucial missing data
+    # manually fix (mutate down, ydstogo, yardline_100) kickoffs to model wp
+    # of a touchback
+    # add 0.01 seconds to game_seconds_remaining for kickoffs to avoid plotting
+    # two plays at the same time (only effects untimed plays like touchbacks)
     pbp_filtered <- pbp_data %>%
+        mutate(down=(if_else(kickoff_attempt==1,1,down)),
+               ydstogo=(if_else(kickoff_attempt==1,10,ydstogo)),
+               yardline_100=(if_else(kickoff_attempt==1,
+                                     if_else(season<2016,80,75),yardline_100)),
+               game_seconds_remaining =(if_else(kickoff_attempt==1,
+                                                game_seconds_remaining+0.01,
+                                                game_seconds_remaining))) %>%
+        # remove plays with crucial missing data (i.e. timeouts, end of quarter)
         filter(!is.na(down),!is.na(score_differential))
     
     # drop wp columns if they exist
@@ -116,9 +127,9 @@ export_wp <- function(model,pbp_data) {
                 winning_team = wp_chgs$winning_team,
                 wp=0.5,home_wp = 0.5, away_wp = 0.5) %>%
         # add row at beginning of the game to help with plot shading
-        add_row(game_seconds_remaining = 3600, quarter_seconds_remaining = 900,
+        add_row(game_seconds_remaining = 3600.02, quarter_seconds_remaining = 900,
                 total_home_score=0, total_away_score=0,
-                wp=0.5, home_wp = 0.5, away_wp = 0.5) %>%
+                wp=0.5, home_wp = 0.5, away_wp = 0.5,.before=1) %>%
         # add row at end of game to assign wp of 1 to winning team to help with plot shading
         add_row(game_seconds_remaining = 0, quarter_seconds_remaining = 0,
                 home_wp = case_when(last(pbp_filtered$result) > 0 ~ 1, 
