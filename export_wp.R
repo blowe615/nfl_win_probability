@@ -74,6 +74,7 @@ export_wp <- function(model,pbp_data) {
     
     # add new columns for home and away wp based on the wp model
     pbp_filtered<- pbp_filtered %>%
+        group_by(game_id) %>%
         mutate(home_wp = if_else(posteam==home_team,wp,1-wp),
                away_wp = if_else(posteam==away_team,wp,1-wp),
                # add post-play wp for win probability added (wpa)
@@ -90,7 +91,8 @@ export_wp <- function(model,pbp_data) {
                # add column to flag plays where the winning team changed on the
                # previous play
                wp_chgd = if_else(lag(wp_chg)==1,1,0)
-               )
+               ) %>%
+        ungroup()
     # This section adds extra rows with win probability set to 50%. These rows
     # are added in between two plays where the winning team (with win probability
     # greater than 50%) changes so that there is a data point at 50% win
@@ -103,11 +105,11 @@ export_wp <- function(model,pbp_data) {
         pbp_filtered %>%
             # filter plays where winning team changes
             filter(wp_chg==1) %>%
-            select(game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr),
+            select(game_id,game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr),
         pbp_filtered %>%
             # filter plays where winning team just changed
             filter(wp_chgd==1) %>%
-            select(game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr) %>%
+            select(game_id,game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr) %>%
             # rename columns with a 2 to avoid duplicates
             rename_with(function(x){paste0(x,"2")}))
     
@@ -122,30 +124,46 @@ export_wp <- function(model,pbp_data) {
     
     # add dummy rows to filtered pbp data
     pbp_filtered <- pbp_filtered %>%
-        add_row(game_seconds_remaining = round(dummy_times),
+        add_row(game_id = wp_chgs$game_id,game_seconds_remaining = round(dummy_times),
                 quarter_seconds_remaining = round(dummy_qtr_times), 
                 winning_team = wp_chgs$winning_team,
                 wp=0.5,home_wp = 0.5, away_wp = 0.5) %>%
-        # add row at beginning of the game to help with plot shading
-        add_row(game_seconds_remaining = 3600.02, quarter_seconds_remaining = 900,
-                total_home_score=0, total_away_score=0,
-                wp=0.5, home_wp = 0.5, away_wp = 0.5,.before=1) %>%
-        # add row at end of game to assign wp of 1 to winning team to help with plot shading
-        add_row(game_seconds_remaining = 0, quarter_seconds_remaining = 0,
-                home_wp = case_when(last(pbp_filtered$result) > 0 ~ 1, 
-                                       last(pbp_filtered$result) < 0 ~ 0,
-                                       last(pbp_filtered$result) == 0 ~ 0.5),
-                away_wp = 1-home_wp) %>%
-        # add row at end of the game to help with plot shading
-        add_row(game_seconds_remaining = 0, quarter_seconds_remaining = 0,
-                wp=0.5, home_wp = 0.5, away_wp = 0.5) %>%
         # sort pbp data by game_seconds_remaining
-        arrange(-game_seconds_remaining)
+        arrange(game_id,-game_seconds_remaining)
+    
+    # create df with result of each game to add a row at end of each game to
+    # assign wp of 1 to winning team to help with plot shading
+    game_results <-pbp_filtered %>%
+        group_by(game_id) %>%
+        summarise(result=last(result))
+    
+    # add additional rows at beginning and end of each game to help plotting
+    pbp_filtered <- pbp_filtered %>%
+        # add row at beginning of each game with wp 50% to help with plot shading
+        add_row(game_id = game_results$game_id, game_seconds_remaining = 3600.02,
+                quarter_seconds_remaining = 900, total_home_score=0,
+                total_away_score=0, wp=0.5, home_wp = 0.5, away_wp = 0.5) %>%
+        # add row at end of each game to assign wp of 1 to winning team to help with plot shading
+        add_row(game_id = game_results$game_id, game_seconds_remaining = 0,
+                quarter_seconds_remaining = 0,
+                home_wp = case_when(game_results$result > 0 ~ 1, 
+                                    game_results$result < 0 ~ 0,
+                                    game_results$result == 0 ~ 0.5),
+                away_wp = 1-home_wp) %>%
+        # add row at end of each game with wp 50% to help with plot shading
+        add_row(game_id = game_results$game_id, game_seconds_remaining = 0,
+                quarter_seconds_remaining = 0, wp=0.5, home_wp = 0.5,
+                away_wp = 0.5) %>%
+        
+        # sort by game_id and game_seconds_remaining
+        arrange(game_id,-game_seconds_remaining)
     
     # fill in missing values in dummy plays from previous rows
     pbp_filtered <- pbp_filtered %>%
+        group_by(game_id) %>%
         fill(c(total_home_score,total_away_score,qtr,home_team,away_team,posteam,defteam),
-             .direction = "downup")
+             .direction = "downup") %>%
+        ungroup()
     
     # add columns for easier plotting
     pbp_filtered <- pbp_filtered %>%
