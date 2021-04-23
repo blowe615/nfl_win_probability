@@ -151,7 +151,7 @@ export_wp <- function(model,pbp_data) {
                                     game_results$result == 0 ~ 0.5),
                 away_wp = 1-home_wp) %>%
         # add row at end of each game with wp 50% to help with plot shading
-        add_row(game_id = game_results$game_id, game_seconds_remaining = 0,
+        add_row(game_id = game_results$game_id, game_seconds_remaining = -0.01,
                 quarter_seconds_remaining = 0, wp=0.5, home_wp = 0.5,
                 away_wp = 0.5) %>%
         
@@ -180,7 +180,7 @@ export_wp <- function(model,pbp_data) {
     
     # return filtered pbp data with columns needed for plotting
     return(pbp_filtered %>%
-               select(home_team,away_team, game_seconds_remaining, quarter_seconds_remaining,
+               select(game_id,home_team,away_team, game_seconds_remaining, quarter_seconds_remaining,
                       qtr,desc,total_home_score,total_away_score,wp,home_wp,away_wp,
                       elapsed_time,winning_team_away,winning_team_home,away_wp_floor,
                       home_wp_ceil))
