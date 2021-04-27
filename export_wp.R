@@ -105,11 +105,11 @@ export_wp <- function(model,pbp_data) {
         pbp_filtered %>%
             # filter plays where winning team changes
             filter(wp_chg==1) %>%
-            select(game_id,season_type,game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr),
+            select(game_id,season,season_type,game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr),
         pbp_filtered %>%
             # filter plays where winning team just changed
             filter(wp_chgd==1) %>%
-            select(game_id,season_type,game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr) %>%
+            select(game_id,season,season_type,game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr) %>%
             # rename columns with a 2 to avoid duplicates
             rename_with(function(x){paste0(x,"2")}))
     
@@ -124,7 +124,8 @@ export_wp <- function(model,pbp_data) {
     
     # add dummy rows to filtered pbp data
     pbp_filtered <- pbp_filtered %>%
-        add_row(game_id = wp_chgs$game_id, season_type = wp_chgs$season_type,
+        add_row(game_id = wp_chgs$game_id, season = wp_chgs$season,
+                season_type = wp_chgs$season_type,
                 game_seconds_remaining = round(dummy_times),
                 quarter_seconds_remaining = round(dummy_qtr_times), 
                 winning_team = wp_chgs$winning_team,
@@ -137,29 +138,33 @@ export_wp <- function(model,pbp_data) {
     game_results <-pbp_filtered %>%
         group_by(game_id) %>%
         # identify columns for each game that need to be specified in added rows
-        summarise(result=last(result), season_type=last(season_type))
+        summarise(result=last(result), season=last(season),
+                  season_type=last(season_type))
     
     # add additional rows at beginning and end of each game to help plotting
     pbp_filtered <- pbp_filtered %>%
         # add row at beginning of each game with wp 50% to help with plot shading
-        add_row(game_id = game_results$game_id, season_type = game_results$season_type,
+        add_row(game_id = game_results$game_id, season=game_results$season,
+                season_type = game_results$season_type,
                 game_seconds_remaining = 3600.02,quarter_seconds_remaining = 900,
                 total_home_score=0,total_away_score=0, wp=0.5, home_wp = 0.5,
                 away_wp = 0.5) %>%
         # add row at end of each game to assign wp of 1 to winning team to help with plot shading
-        add_row(game_id = game_results$game_id, season_type = game_results$season_type,
+        add_row(game_id = game_results$game_id, season=game_results$season,
+                season_type = game_results$season_type,
                 game_seconds_remaining = 0, quarter_seconds_remaining = 0,
                 home_wp = case_when(game_results$result > 0 ~ 1, 
                                     game_results$result < 0 ~ 0,
                                     game_results$result == 0 ~ 0.5),
                 away_wp = 1-home_wp) %>%
         # add row at end of each game with wp 50% to help with plot shading
-        add_row(game_id = game_results$game_id, season_type = game_results$season_type,
+        add_row(game_id = game_results$game_id, season=game_results$season,
+                season_type = game_results$season_type,
                 game_seconds_remaining = -0.01, quarter_seconds_remaining = 0,
                 wp=0.5, home_wp = 0.5, away_wp = 0.5) %>%
         
         # sort by game_id and game_seconds_remaining
-        arrange(game_id,-game_seconds_remaining)
+        arrange(season,game_id,-game_seconds_remaining)
     
     # fill in missing values in dummy plays from previous rows
     pbp_filtered <- pbp_filtered %>%
@@ -189,9 +194,9 @@ export_wp <- function(model,pbp_data) {
     
     # return filtered pbp data with columns needed for plotting
     return(pbp_filtered %>%
-               select(game_id,season_type,home_team,away_team, game_seconds_remaining,
-                      quarter_seconds_remaining,qtr,desc,total_home_score,
-                      total_away_score,wp,home_wp,away_wp,elapsed_time,
-                      winning_team_away,winning_team_home,away_wp_floor,
-                      home_wp_ceil))
+               select(season,game_id,season_type,home_team,away_team,
+                      game_seconds_remaining,quarter_seconds_remaining,qtr,desc,
+                      total_home_score,total_away_score,wp,home_wp,away_wp,
+                      elapsed_time,winning_team_away,winning_team_home,
+                      away_wp_floor,home_wp_ceil))
 }
