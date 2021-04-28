@@ -1,2 +1,4 @@
 .DS_Store
 *.twbr
+SB_plays.csv
+win_prob_plays.csv
