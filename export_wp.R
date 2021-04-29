@@ -173,18 +173,46 @@ export_wp <- function(model,pbp_data) {
              .direction = "downup") %>%
         ungroup()
     
+    # create lists of teams that have the same plot colors
+    black_list = c("CIN","JAX","PIT")
+    blue_list = c("DAL","DEN","LA","LAC","LAR","NE","SD","SEA","STL","TEN","IND",
+                  "HOU","BUF","CHI","NYG")
+    green_list = c("GB","NYJ","PHI")
+    purple_list = c("BAL","MIN")
+    red_list = c("ARI","ATL","SF","TB","KC","WAS")
+    lt_blue_list = c("CAR","DET","MIA")
+    
     # add columns for easier plotting
     pbp_filtered <- pbp_filtered %>%
         # add column for elapsed time (inverse of game_seconds_remaining)
         mutate(elapsed_time = 3600-game_seconds_remaining,
+               # add column to flag teams that have the same plot colors
+               away_team_alt = if_else((home_team %in% black_list) & 
+                                           (away_team %in% black_list),
+                                       paste0(away_team,"2"),
+                               if_else((home_team %in% blue_list) & 
+                                           (away_team %in% blue_list),
+                                       paste0(away_team,"2"),
+                               if_else((home_team %in% green_list) & 
+                                           (away_team %in% green_list),
+                                       paste0(away_team,"2"),
+                               if_else((home_team %in% purple_list) & 
+                                           (away_team %in% purple_list),
+                                       paste0(away_team,"2"),
+                               if_else((home_team %in% red_list) & 
+                                           (away_team %in% red_list),
+                                       paste0(away_team,"2"),
+                               if_else((home_team %in% lt_blue_list) & 
+                                           (away_team %in% lt_blue_list),
+                                       paste0(away_team,"2"),away_team)))))),
                # add column to label when away team has at least 50% wp
-               winning_team_away = if_else(away_wp >= 0.5,away_team,home_team),
+               winning_team_away = if_else(away_wp >= 0.5,away_team_alt,home_team),
                # add column to label when home team has at least 50% wp
-               winning_team_home = if_else(home_wp >= 0.5,home_team,away_team),
+               winning_team_home = if_else(home_wp >= 0.5,home_team,away_team_alt),
                # add column with away wp floor of 50%
                away_wp_floor = if_else(away_wp >= 0.5,away_wp,0.5),
                # add column with home wp ceiling of 50%
-               home_wp_ceil = if_else(away_wp <= 0.5,away_wp,0.5))
+               home_wp_ceil = if_else(away_wp <= 0.5,away_wp,0.5),)
     
     # mutate season_type for plot filtering
     pbp_filtered <- pbp_filtered %>%
@@ -198,5 +226,5 @@ export_wp <- function(model,pbp_data) {
                       game_seconds_remaining,quarter_seconds_remaining,qtr,desc,
                       total_home_score,total_away_score,wp,home_wp,away_wp,
                       elapsed_time,winning_team_away,winning_team_home,
-                      away_wp_floor,home_wp_ceil))
+                      away_wp_floor,home_wp_ceil,away_team_alt))
 }
