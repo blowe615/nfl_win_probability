@@ -126,8 +126,8 @@ export_wp <- function(model,pbp_data) {
     pbp_filtered <- pbp_filtered %>%
         add_row(game_id = wp_chgs$game_id, season = wp_chgs$season,
                 season_type = wp_chgs$season_type,
-                game_seconds_remaining = round(dummy_times),
-                quarter_seconds_remaining = round(dummy_qtr_times), 
+                game_seconds_remaining = dummy_times,
+                quarter_seconds_remaining = dummy_qtr_times, 
                 winning_team = wp_chgs$winning_team,
                 wp=0.5,home_wp = 0.5, away_wp = 0.5) %>%
         # sort pbp data by game_seconds_remaining
