@@ -22,7 +22,6 @@ I recently took some Coursera courses on Tableau and R as part of my ongoing eff
 * `plot_wp_model_LOSO.R`: R function to mutate output of `train_wp_model_LOSO` to make plots for cross validation.
 * `wp_model.RDS`: Trained XGBoost win probability model that you can load instead of training your own.
 * `win_prob_plot.twb`: Tableau Desktop workbook to make the interactive win probability plot.
-* `SB_plays.csv`: CSV file containing play-by-play data with win probability from Super Bowl LV between the Kansas City Chiefs and Tampa Bay Buccaneers.  This is the output of `export_wp`.
 * `teams_colors_logos.csv`: CSV file containing hex codes for NFL team colors and URLs for team logos.
 
 ## Results
