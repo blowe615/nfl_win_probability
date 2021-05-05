@@ -182,7 +182,8 @@ export_wp <- function(model,pbp_data) {
     # fill in missing values in dummy plays from previous rows
     pbp_filtered <- pbp_filtered %>%
         group_by(game_id) %>%
-        fill(c(total_home_score,total_away_score,qtr,home_team,away_team,posteam,defteam),
+        fill(c(total_home_score,total_away_score,qtr,home_team,away_team,posteam,
+               defteam,game_date,week,home_score,away_score),
              .direction = "downup") %>%
         ungroup()
     
@@ -239,5 +240,6 @@ export_wp <- function(model,pbp_data) {
                       game_seconds_remaining,quarter_seconds_remaining,qtr,desc,
                       total_home_score,total_away_score,wp,home_wp,away_wp,
                       elapsed_time,winning_team_away,winning_team_home,
-                      away_wp_floor,home_wp_ceil,away_team_alt,wpa_pos))
+                      away_wp_floor,home_wp_ceil,away_team_alt,home_score,
+                      away_score,wpa_pos))
 }
