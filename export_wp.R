@@ -156,8 +156,8 @@ export_wp <- function(model,pbp_data) {
             select(game_id,season,season_type,game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr) %>%
             # rename columns with a 2 to avoid duplicates
             rename_with(function(x){paste0(x,"2")})) %>%
-        # filter out plays added at the end of the game for plotting
-        filter(game_seconds_remaining2 >=0)
+        # filter out plays added at the beginning and end of the game for plotting
+        filter(game_seconds_remaining2 < 3600 & game_seconds_remaining2 >=0)
     
     # calculate dummy times (plays that didn't happen in the game) by interpolating
     # between the before/after plays
@@ -235,9 +235,9 @@ export_wp <- function(model,pbp_data) {
     
     # return filtered pbp data with columns needed for plotting
     return(pbp_filtered %>%
-               select(season,game_id,season_type,home_team,away_team,
+               select(season,game_id,season_type,game_date,week,home_team,away_team,
                       game_seconds_remaining,quarter_seconds_remaining,qtr,desc,
                       total_home_score,total_away_score,wp,home_wp,away_wp,
                       elapsed_time,winning_team_away,winning_team_home,
-                      away_wp_floor,home_wp_ceil,away_team_alt))
+                      away_wp_floor,home_wp_ceil,away_team_alt,wpa_pos))
 }
