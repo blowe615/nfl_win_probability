@@ -28,14 +28,14 @@ plot_ov_wp_model_LOSO <- function(cv_results) {
         #)) %>%
         # initialize plot
         ggplot() +
-        # plot actual (y) vs predicted (x) wp, sized by number of plays
-        geom_point(aes(x=bin_pred_prob,y=bin_actual_prob,size=n_plays)) +
+        # plot predicted (y) vs actual (x) wp, sized by number of plays
+        geom_point(aes(x=bin_actual_prob,y=bin_pred_prob,size=n_plays)) +
         # add a line with unit slope for visual comparison
         geom_abline(slope=1,intercept=0,color='blue') +
         
         # create and position labels
-        labs(x="Predicted Win Probability",
-             y="Observed Win Probability",
+        labs(x="Observed Win Probability",
+             y="Predicted Win Probability",
              title="Overtime WP Model for 1999-2020 Seasons",
              size="Number of Plays") +
         theme_bw() +
