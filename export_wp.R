@@ -241,5 +241,5 @@ export_wp <- function(model,pbp_data) {
                       total_home_score,total_away_score,wp,home_wp,away_wp,
                       elapsed_time,winning_team_away,winning_team_home,
                       away_wp_floor,home_wp_ceil,away_team_alt,home_score,
-                      away_score,wpa_pos))
+                      away_score,wpa_pos,posteam,down,ydstogo,score_differential))
 }
