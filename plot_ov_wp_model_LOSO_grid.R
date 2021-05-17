@@ -22,10 +22,17 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results) {
         # as a percentage of number of total plays
         summarize(n_plays = n(),
                   n_wins = sum(label),
-                  bin_actual_prob = n_wins/n_plays)
+                  bin_actual_prob = n_wins/n_plays) %>%
+        ungroup()
     
-    # print the correlation, rounded to 4 decimals
-    print(paste("Correlation:",round(cor(cv_bins$bin_actual_prob,cv_bins$bin_pred_prob),4)))
+    # create a separate tbl with correlations, rounded to 4 decimals
+    cv_bin_cor <- cv_bins %>%
+        group_by(nrounds) %>%
+        summarize(COR = round(cor(bin_actual_prob,bin_pred_prob),4)) %>%
+        ungroup()
+    
+    # print the correlations for each nrounds, in descending order
+    print(as.data.frame(arrange(cv_bin_cor,-COR)))
     
     # generate scatterplot of predicted vs observed win probability in 5% bins
     cv_bins %>%
