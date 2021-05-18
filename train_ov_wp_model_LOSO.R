@@ -4,6 +4,28 @@ train_ov_wp_model_LOSO <- function(pbp_data, nrounds){
     ## (21 in this case) that trains a model on all seasons but one then uses that
     ## season to cross validate the model.
     
+    # Inputs:
+    # pbp_data: tbl, containing labeled overtime plays. Must have the following
+    # columns, in any order:
+    #   label: int, 1 if possessing team won the game, otherwise 0
+    #   first_drive: int, 1 if first drive of overtime, otherwise 0
+    #   game_seconds_remaining: int, number of seconds remaining in overtime
+    #                           (900 prior to 2017, 600 starting in 2017)
+    #   Diff_Time_Ratio: dbl, score_differential/exp(-4 * elapsed_share))
+    #   score_differential: int, difference between possessing team score and defending team score
+    #   down: int, down of each play (1-4)
+    #   ydstogo: int, yards to first down
+    #   yardline_100: int, yards from opponent's end zone
+    #   home: int, 1 if possessing team is home, otherwise 0
+    #   posteam_timeouts_remaining: int, number of possessing team's timeouts
+    #   defteam_timeouts_remaining: int, number of defending team's timeouts
+    #   season: int, 4 digit year
+    
+    # Output:
+    # cv_results: tbl containing the input columns along with predicted win
+    #             probability for each play based on a model trained all seasons
+    #             excluding the season being evaluated.
+    
     # create a list of pbp seasons
     seasons <- 1999:2020
     
