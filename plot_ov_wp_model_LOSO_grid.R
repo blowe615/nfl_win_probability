@@ -32,7 +32,7 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results) {
         ungroup()
     
     # print the correlations for each nrounds, in descending order
-    print(as.data.frame(arrange(cv_bin_cor,-COR)))
+    print(as.data.frame(arrange(cv_bin_cor,-COR)%>%head(10)))
     
     # generate scatterplot of predicted vs observed win probability in 5% bins
     cv_bins %>%
