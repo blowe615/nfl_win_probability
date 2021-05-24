@@ -36,14 +36,14 @@ train_ov_wp_model_LOSO <- function(pbp_data, nrounds,eta=0.3,max_delta_step=1){
             filter(season!=x) %>%
             # Select the relevant features and the label
             select(label, first_drive, game_seconds_remaining,
-                   Diff_Time_Ratio, score_differential, down, ydstogo, yardline_100,
+                    score_differential, down, ydstogo, yardline_100,
                    home, posteam_timeouts_remaining, defteam_timeouts_remaining,
                    -season)
         # Assign the dropped season to the test dataset
         test_data <- pbp_data %>%
             filter(season==x) %>%
             select(label, first_drive, game_seconds_remaining,
-                   Diff_Time_Ratio, score_differential, down, ydstogo, yardline_100,
+                    score_differential, down, ydstogo, yardline_100,
                    home, posteam_timeouts_remaining, defteam_timeouts_remaining,
                    -season)
         
@@ -56,7 +56,9 @@ train_ov_wp_model_LOSO <- function(pbp_data, nrounds,eta=0.3,max_delta_step=1){
         
         # train the models
         my_ov_wp_model <- xgboost::xgboost(data=as.matrix(train_data %>% select(-label)),
-                                        label=train_data$label,params=params,nrounds=nrounds)
+                                        label=train_data$label,params=params,nrounds=nrounds,
+                                        verbose=0)
+        
         print("training complete!")
         
         # add predictions for each season to a prediction df
