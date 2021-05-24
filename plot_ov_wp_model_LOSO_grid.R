@@ -1,4 +1,4 @@
-plot_ov_wp_model_LOSO_grid <- function(cv_results) {
+plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR") {
     # A function to bin and plot predicted vs actual win probabilities for the
     # purpose of cross validation of an overtime win probability model
     
@@ -28,11 +28,17 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results) {
     # create a separate tbl with correlations, rounded to 4 decimals
     cv_bin_cor <- cv_bins %>%
         group_by(nrounds,eta) %>%
-        summarize(COR = round(cor(bin_actual_prob,bin_pred_prob),4)) %>%
+        summarize(COR = round(cor(bin_actual_prob,bin_pred_prob),4),
+                  RMSE = round(rmse(bin_actual_prob,bin_pred_prob),4)) %>%
         ungroup()
     
-    # print the correlations for each nrounds, in descending order
-    print(as.data.frame(arrange(cv_bin_cor,-COR)%>%head(10)))
+    # print the correlations and RMSE for each nrounds, in descending order
+    # sort the cv results based on the user input, either correlation by RMSE
+    # sort by correlation if sort_by == "COR"
+    ifelse(sort_by=="COR",
+        print(as.data.frame(arrange(cv_bin_cor,-COR)%>%head(10))),
+        # otherwise sort by RMSE
+        print(as.data.frame(arrange(cv_bin_cor,RMSE)%>%head(10))))
     
     # generate scatterplot of predicted vs observed win probability in 5% bins
     cv_bins %>%
