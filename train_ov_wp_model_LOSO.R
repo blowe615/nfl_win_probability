@@ -1,4 +1,4 @@
-train_ov_wp_model_LOSO <- function(pbp_data, nrounds,eta=0.3,max_delta_step=1){
+train_ov_wp_model_LOSO <- function(pbp_data, nrounds, params){
     ## Function to perform Leave One Season Out (LOSO) cross validation on NFL overtime
     ## play-by-play (pbp) data using XGBoost. LOSO will create n models for n seasons
     ## (21 in this case) that trains a model on all seasons but one then uses that
@@ -46,13 +46,6 @@ train_ov_wp_model_LOSO <- function(pbp_data, nrounds,eta=0.3,max_delta_step=1){
                     score_differential, down, ydstogo, yardline_100,
                    home, posteam_timeouts_remaining, defteam_timeouts_remaining,
                    -season)
-        
-        # define model training parameters (same as nflfastR)
-        nrounds <- nrounds
-        params <- list(booster="gbtree",objective="binary:logistic",
-                      eval_metric="logloss",eta=eta,gamma=0,subsample=0.8,
-                      colsample_bytree = 0.8, max_depth=4, min_child_weight=1,
-                      max_delta_step=max_delta_step)
         
         # train the models
         my_ov_wp_model <- xgboost::xgboost(data=as.matrix(train_data %>% select(-label)),
