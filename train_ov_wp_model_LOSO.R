@@ -20,6 +20,8 @@ train_ov_wp_model_LOSO <- function(pbp_data, nrounds, params){
     #   posteam_timeouts_remaining: int, number of possessing team's timeouts
     #   defteam_timeouts_remaining: int, number of defending team's timeouts
     #   season: int, 4 digit year
+    # nrounds: int, number of boosting iterations for each model
+    # params: list, contains model parameters required for xgboost model
     
     # Output:
     # cv_results: tbl containing the input columns along with predicted win
