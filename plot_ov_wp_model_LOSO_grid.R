@@ -16,8 +16,10 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR") {
     cv_bins <- cv_results %>%
         # create 5% bins
         mutate(bin_pred_prob = round(wp/0.025) * 0.025) %>%
-        # group by nrounds and bins
-        group_by(nrounds,eta,bin_pred_prob) %>%
+        # group by tuning parameters and bins
+        group_by(booster, objective, eval_metric, eta, gamma, subsample,
+                 colsample_bytree, max_depth, min_child_weight,
+                 max_delta_step, nrounds, bin_pred_prob) %>%
         # calculate actual win probability by counting number of winning plays
         # as a percentage of number of total plays
         summarize(n_plays = n(),
@@ -27,7 +29,9 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR") {
     
     # create a separate tbl with correlations, rounded to 4 decimals
     cv_bin_cor <- cv_bins %>%
-        group_by(nrounds,eta) %>%
+        group_by(booster, objective, eval_metric, eta, gamma, subsample,
+                 colsample_bytree, max_depth, min_child_weight,
+                 max_delta_step, nrounds) %>%
         summarize(COR = round(cor(bin_actual_prob,bin_pred_prob),4),
                   RMSE = round(rmse(bin_actual_prob,bin_pred_prob),4)) %>%
         ungroup()
@@ -64,6 +68,8 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR") {
         # specify that plots range from 0 to 1 and are square
         expand_limits(x=c(0,1),y=c(0,1)) +
         coord_equal() +
-        facet_grid(vars(nrounds),vars(eta))
+        facet_wrap(vars(booster, objective, eval_metric, eta, gamma, subsample,
+                        colsample_bytree, max_depth, min_child_weight,
+                        max_delta_step, nrounds),ncol=4)
 
 }
