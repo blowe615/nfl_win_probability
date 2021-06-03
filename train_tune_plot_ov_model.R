@@ -6,15 +6,18 @@ param_grid <- crossing(booster="gbtree",
                        eval_metric="logloss",
                        eta=0.2,
                        gamma=0,
-                       subsample=1,
+                       subsample=c(0.5,0.8,1),
                        colsample_bytree=1,
-                       max_depth=6,
+                       max_depth=c(4,6,8),
                        min_child_weight=1,
                        max_delta_step=0,
-                       nrounds=seq(10,40,10))
+                       nrounds=10)
+
+param_group <- colnames(param_grid %>% summarise(across(.fns=n_distinct)) %>%
+                                        select_if(function(x) x>1))
 
 # call the grid search function
 cv_results_tuning <- train_ov_wp_model_LOSO_grid(ov_plays,param_grid)
 
 # plot the grid search results
-print(plot_ov_wp_model_LOSO_grid(cv_results_tuning,"RMSE"))
+print(plot_ov_wp_model_LOSO_grid(cv_results_tuning,"RMSE",param_group))
