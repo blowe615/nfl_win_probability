@@ -38,15 +38,16 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR",param_group) {
                   RMSE = round(rmse(bin_actual_prob,bin_pred_prob),4)) %>%
         ungroup()
     
-    # print the correlations and RMSE for each nrounds, in descending order
-    # sort the cv results based on the user input, either correlation by RMSE
+    # print the correlations and RMSE for each parameter combination, in 
+    # descending order
+    # sort the cv results based on the user input, either correlation or RMSE
     # sort by correlation if sort_by == "COR"
     ifelse(sort_by=="COR",
         print(as.data.frame(arrange(cv_bin_cor,-COR)%>%head(10))),
         # otherwise sort by RMSE
         print(as.data.frame(arrange(cv_bin_cor,RMSE)%>%head(10))))
     
-    # generate scatterplot of predicted vs observed win probability in 5% bins
+    # generate scatterplot of predicted vs observed win probability in 2.5% bins
     cv_bins %>%
         # initialize plot
         ggplot() +
