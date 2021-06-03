@@ -72,7 +72,8 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR",param_group) {
         coord_equal() +
         # facet by the parameters passed by param_group so each plot is labelled
         # with its tuning parameter combination
-        facet_wrap(as.formula(paste("~",paste(param_group,collapse = " + "))),ncol=4)
+        facet_wrap(as.formula(paste("~",paste(param_group,collapse = " + "))),
+                   labeller=label_both,ncol=4)
         
 
 }
