@@ -1,4 +1,4 @@
-plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR") {
+plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR",param_group) {
     # A function to bin and plot predicted vs actual win probabilities for the
     # purpose of cross validation of an overtime win probability model
     
@@ -7,6 +7,8 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR") {
     # and a model predicted win probability with the following columns:
     #   wp: num, model assigned win probability
     #   label: int, 1 if possessing team won, otherwise 0
+    # param_group: list, contains names of tuning parameters that were modified,
+    #               to be used in facet_wrap
     
     # Outputs:
     # Prints the correlation coefficient between observed and predicted win probability
@@ -68,8 +70,9 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR") {
         # specify that plots range from 0 to 1 and are square
         expand_limits(x=c(0,1),y=c(0,1)) +
         coord_equal() +
-        facet_wrap(vars(booster, objective, eval_metric, eta, gamma, subsample,
-                        colsample_bytree, max_depth, min_child_weight,
-                        max_delta_step, nrounds),ncol=4)
+        # facet by the parameters passed by param_group so each plot is labelled
+        # with its tuning parameter combination
+        facet_wrap(as.formula(paste("~",paste(param_group,collapse = " + "))),ncol=4)
+        
 
 }
