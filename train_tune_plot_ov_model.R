@@ -13,6 +13,8 @@ param_grid <- crossing(booster="gbtree",
                        max_delta_step=0,
                        nrounds=10)
 
+# get the list of model parameters that are being tuned (i.e. that have more
+# than one valueC)
 param_group <- colnames(param_grid %>% summarise(across(.fns=n_distinct)) %>%
                                         select_if(function(x) x>1))
 
