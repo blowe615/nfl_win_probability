@@ -1,5 +1,12 @@
 # Script to train, tune and evaluate overtime wp model
 
+# Load necessary packages
+library(tidyverse)
+
+# Load necessary packages
+source('train_ov_wp_model_LOSO_grid.R')
+source('plot_ov_wp_model_LOSO_grid.R')
+
 # generate parameter grid of all combinations of parameters to test for tuning
 param_grid <- crossing(booster="gbtree",
                        objective="binary:logistic",
