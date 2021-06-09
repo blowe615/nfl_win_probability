@@ -14,12 +14,12 @@ param_grid <- crossing(booster="gbtree",
                        eval_metric="logloss",
                        eta=0.2,
                        gamma=0,
-                       subsample=c(0.5,0.8,1),
+                       subsample=0.5,
                        colsample_bytree=1,
-                       max_depth=c(4,6,8),
+                       max_depth=4,
                        min_child_weight=1,
-                       max_delta_step=0,
-                       nrounds=c(10,20))
+                       max_delta_step=5,
+                       nrounds=c(8,10,12))
 
 # get the list of model parameters that are being tuned (i.e. that have more
 # than one valueC)
