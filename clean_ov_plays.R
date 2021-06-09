@@ -24,11 +24,12 @@ clean_ov_plays <- function(){
                    # add label for training
                    label = if_else(posteam==winner,1,0)) %>%
             # filter out plays with crucial missing data
-            filter(!is.na(down),!is.na(score_differential),qtr<=4) %>%
+            filter(!is.na(down),!is.na(score_differential)) %>%
             # if yardline_100 is null, use a RegEx to pull yardline_100 from side_of_field
             mutate(yardline_100 = if_else(is.na(yardline_100),
                                           as.numeric(regmatches(side_of_field,gregexpr("[0-9]*\\.?[0-9]+",side_of_field))),
                                           yardline_100)) %>%
             ungroup()
     })
+    return(ov_plays)
 }
