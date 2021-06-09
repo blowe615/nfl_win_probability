@@ -2,6 +2,7 @@
 
 # Load necessary packages
 library(tidyverse)
+library(Metrics)
 
 # Load necessary packages
 source('train_ov_wp_model_LOSO_grid.R')
@@ -18,7 +19,7 @@ param_grid <- crossing(booster="gbtree",
                        max_depth=c(4,6,8),
                        min_child_weight=1,
                        max_delta_step=0,
-                       nrounds=10)
+                       nrounds=c(10,20))
 
 # get the list of model parameters that are being tuned (i.e. that have more
 # than one valueC)
