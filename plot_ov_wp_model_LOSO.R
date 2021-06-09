@@ -15,7 +15,7 @@ plot_ov_wp_model_LOSO <- function(cv_results) {
     
     cv_bins <- cv_results %>%
         # create 5% bins
-        mutate(bin_pred_prob = round(wp/0.025) * 0.025) %>%
+        mutate(bin_pred_prob = round(wp/0.05) * 0.05) %>%
         group_by(bin_pred_prob) %>%
         # calculate actual win probability by counting number of winning plays
         # as a percentage of number of total plays
@@ -43,7 +43,7 @@ plot_ov_wp_model_LOSO <- function(cv_results) {
         theme_bw() +
         theme(plot.title = element_text(hjust=0.5),
               axis.title.x = element_text(size=12),
-              axis.title.y = element_text(size=10),
+              axis.title.y = element_text(size=12),
               axis.text.x = element_text(angle=90,hjust=0),
               legend.position = "bottom") +
 
