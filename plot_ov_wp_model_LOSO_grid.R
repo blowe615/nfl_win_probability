@@ -47,6 +47,9 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR",param_group) {
         # otherwise sort by RMSE
         print(as.data.frame(arrange(cv_bin_cor,RMSE)%>%head(10))))
     
+    # get the number of parameter combinations to help with grid plotting
+    grid_length<-dim(cv_bin_cor)[1]
+    
     # generate scatterplot of predicted vs observed win probability in 2.5% bins
     cv_bins %>%
         # initialize plot
@@ -72,9 +75,9 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR",param_group) {
         expand_limits(x=c(0,1),y=c(0,1)) +
         coord_equal() +
         # facet by the parameters passed by param_group so each plot is labelled
-        # with its tuning parameter combination
+        # with its tuning parameter combination and a roughly square grid is made
         facet_wrap(as.formula(paste("~",paste(param_group,collapse = " + "))),
-                   labeller=label_both,ncol=4)
+                   labeller=label_both,ncol=ceiling(sqrt(grid_length)))
         
 
 }
