@@ -26,10 +26,13 @@ train_ov_wp_model_LOSO_grid<-function(pbp_data,param_grid){
     #             excluding the season being evaluated as well as columns containing
     #             the tuning parameters used for that model
     
+    # Source the training function for a single param set
+    source("train_ov_wp_model_LOSO.R")
     
     # pass the training parameters into an anonymous function which will iterate
     # through each combination and create a df of all of the results of training
     # and LOSO cv
+    
     cv_results_grid <- map_dfr(transpose(param_grid),function(x){
         # extract all parameters except nrounds and assign them to params
         params<-x
