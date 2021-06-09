@@ -17,7 +17,7 @@ plot_ov_wp_model_LOSO_grid <- function(cv_results,sort_by="COR",param_group) {
     
     cv_bins <- cv_results %>%
         # create 5% bins
-        mutate(bin_pred_prob = round(wp/0.025) * 0.025) %>%
+        mutate(bin_pred_prob = round(wp/0.05) * 0.05) %>%
         # group by tuning parameters and bins
         group_by(booster, objective, eval_metric, eta, gamma, subsample,
                  colsample_bytree, max_depth, min_child_weight,
