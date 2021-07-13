@@ -30,6 +30,9 @@ export_wp <- function(model,pbp_data) {
     
     # Output:
     # filtered pbp_data with the following columns:
+    #   season
+    #   game_id
+    #   season_type
     #   home_team
     #   away_team
     #   game_seconds_remaining
@@ -41,6 +44,13 @@ export_wp <- function(model,pbp_data) {
     #   wp: win probability for the possessing team from the input model
     #   home_wp: win probability for the home team from the input model
     #   away_wp: win probability for the away team from the input model
+    #   elapsed_time: time (seconds) since start of game
+    #   winning_team_away: returns away team if wp >= 50%, otherwise home team
+    #   winning_team_home: returns home team if wp >= 50%, otherwise away team
+    #   away_wp_floor: returns greater of away wp or 50%
+    #   home_wp_ceil: returns greater of away wp or 50%
+    #   away_team_alt: flags the away team (by adding a "2") if they have the
+    #                   same team color as the home team (for easier plotting)
     
     # manually fix (mutate down, ydstogo, yardline_100) kickoffs to model wp
     # of a touchback
