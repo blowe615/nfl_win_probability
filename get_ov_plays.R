@@ -22,7 +22,14 @@ get_ov_plays <- function(){
                                       result < 0 ~ away_team,
                                       result == 0 ~ "TIE"),
                    # add label for training
-                   label = if_else(posteam==winner,1,0)) %>%
+                   label = if_else(posteam==winner,1,0),
+                   down=(if_else(kickoff_attempt==1,1,down)),
+                   ydstogo=(if_else(kickoff_attempt==1,10,ydstogo)),
+                   yardline_100=(if_else(kickoff_attempt==1,
+                                         if_else(season<2016,80,75),yardline_100)),
+                   game_seconds_remaining =(if_else(kickoff_attempt==1,
+                                                    game_seconds_remaining+0.01,
+                                                    game_seconds_remaining))) %>%
             # filter out plays with crucial missing data
             filter(!is.na(down),!is.na(score_differential)) %>%
             # if yardline_100 is null, use a RegEx to pull yardline_100 from side_of_field
