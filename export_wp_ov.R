@@ -1,4 +1,4 @@
-export_wp <- function(model,pbp_data) {
+export_wp_ov <- function(model,pbp_data) {
     # A function to join win probability predictions to play-by-play data for
     # the purposes of generating win probability plots. This function also adds
     # extra rows for cleaner plotting.
