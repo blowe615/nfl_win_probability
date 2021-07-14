@@ -1,4 +1,4 @@
-export_wp <- function(model,pbp_data) {
+export_wp <- function(model,ov_model,pbp_data) {
     # A function to join win probability predictions to play-by-play data for
     # the purposes of generating win probability plots. This function also adds
     # extra rows for cleaner plotting.
@@ -65,13 +65,13 @@ export_wp <- function(model,pbp_data) {
                                                 game_seconds_remaining+0.01,
                                                 game_seconds_remaining))) %>%
         # remove plays with crucial missing data (i.e. timeouts, end of quarter)
-        filter(!is.na(down),!is.na(score_differential),qtr<=4)
+        filter(!is.na(down),!is.na(score_differential))
     
     # drop wp columns if they exist
     pbp_filtered <- pbp_filtered %>%
         select(-any_of(c("wp","home_wp","away_wp","home_wp_post","away_wp_post")))
     
-    # call clean_plays function to prepare pbp data for wp model
+    # call clean_plays function to prepare pbp data for reg season wp model
     model_input <- clean_plays(pbp_filtered)
     
     # get win probability predictions and rename them as "wp"
@@ -79,11 +79,32 @@ export_wp <- function(model,pbp_data) {
         rename(wp=V1)
     
     # append "wp" column to filtered pbp data
-    pbp_filtered <- pbp_filtered %>%
+    pbp_filtered_reg <- pbp_filtered %>%
+        filter(qtr<5) %>%
         bind_cols(wp_preds)
     
+    # call clean_plays function to prepare pbp data for ov season wp model
+    model_input_ov <- clean_ov_plays(pbp_filtered)
+    
+    # get win probability predictions and rename them as "wp"
+    wp_preds_ov <- as.data.frame(matrix(predict(ov_model,as.matrix(model_input_ov)))) %>%
+        rename(wp=V1)
+    
+    # append "wp" column to filtered pbp data
+    pbp_filtered_ov <- pbp_filtered %>%
+        filter(qtr>4) %>%
+        bind_cols(wp_preds)
+    
+    # combine regulation and overtime pbp data with wp added
+    pbp_filtered <- full_join(pbp_filtered_reg,pbp_filtered_ov) %>%
+        # add column for elapsed time (inverse of game_seconds_remaining)
+        mutate(elapsed_time = if_else(qtr<5,3600-game_seconds_remaining,
+                                      if_else(season>2016,4200-game_seconds_remaining,
+                                              4500-game_seconds_remaining))) %>%
+        arrange(season, game_id, elapsed_time)
+    
     # add new columns for home and away wp based on the wp model
-    pbp_filtered<- pbp_filtered %>%
+    pbp_filtered <- pbp_filtered %>%
         group_by(game_id) %>%
         mutate(home_wp = if_else(posteam==home_team,wp,1-wp),
                away_wp = if_else(posteam==away_team,wp,1-wp)) %>%
@@ -91,12 +112,13 @@ export_wp <- function(model,pbp_data) {
     
     # create df with result of each game to add a row at end of each game to
     # assign wp of 1 to winning team to help with plot shading
-    game_results <-pbp_filtered %>%
+    game_results <- pbp_filtered %>%
         group_by(game_id) %>%
         # identify columns for each game that need to be specified in added rows
         summarise(result=last(result), season=last(season),
                   season_type=last(season_type),home_team=last(home_team),
-                  away_team=last(away_team))
+                  away_team=last(away_team), elapsed_time=max(elapsed_time),
+                  qtr=max(qtr))
     
     # add additional rows at beginning and end of each game to help plotting
     pbp_filtered <- pbp_filtered %>%
@@ -105,12 +127,14 @@ export_wp <- function(model,pbp_data) {
                 season_type = game_results$season_type,
                 game_seconds_remaining = 3600.02,quarter_seconds_remaining = 900,
                 total_home_score=0,total_away_score=0, wp=0.5, home_wp = 0.5,
-                away_wp = 0.5) %>%
+                away_wp = 0.5, elapsed_time = -0.02) %>%
         # add row at end of each game to assign wp of 1 to winning team to help with plot shading
         add_row(game_id = game_results$game_id, season=game_results$season,
                 season_type = game_results$season_type,
                 home_team = game_results$home_team, away_team = game_results$away_team,
                 game_seconds_remaining = 0, quarter_seconds_remaining = 0,
+                elapsed_time = if_else(game_results$qtr<5,3600,
+                                       game_results$elapsed_time+0.005),
                 home_wp = case_when(game_results$result > 0 ~ 1, 
                                     game_results$result < 0 ~ 0,
                                     game_results$result == 0 ~ 0.5),
@@ -118,11 +142,13 @@ export_wp <- function(model,pbp_data) {
         # add row at end of each game with wp 50% to help with plot shading
         add_row(game_id = game_results$game_id, season=game_results$season,
                 season_type = game_results$season_type,
+                wp=0.5, home_wp = 0.5, away_wp = 0.5,
                 game_seconds_remaining = -0.01, quarter_seconds_remaining = 0,
-                wp=0.5, home_wp = 0.5, away_wp = 0.5) %>%
+                elapsed_time = if_else(game_results$qtr<5,3600.01,
+                                       game_results$elapsed_time+0.01)) %>%
         
-        # sort by game_id and game_seconds_remaining
-        arrange(season,game_id,-game_seconds_remaining)
+        # sort by game_id and elapsed_time
+        arrange(season,game_id,elapsed_time)
     
     # add column to identify which team has higher win probability
     pbp_filtered <- pbp_filtered %>%
@@ -207,27 +233,25 @@ export_wp <- function(model,pbp_data) {
     
     # add columns for easier plotting
     pbp_filtered <- pbp_filtered %>%
-        # add column for elapsed time (inverse of game_seconds_remaining)
-        mutate(elapsed_time = 3600-game_seconds_remaining,
-               # add column to flag teams that have the same plot colors
-               away_team_alt = if_else((home_team %in% black_list) & 
-                                           (away_team %in% black_list),
-                                       paste0(away_team,"2"),
-                               if_else((home_team %in% blue_list) & 
-                                           (away_team %in% blue_list),
-                                       paste0(away_team,"2"),
-                               if_else((home_team %in% green_list) & 
-                                           (away_team %in% green_list),
-                                       paste0(away_team,"2"),
-                               if_else((home_team %in% purple_list) & 
-                                           (away_team %in% purple_list),
-                                       paste0(away_team,"2"),
-                               if_else((home_team %in% red_list) & 
-                                           (away_team %in% red_list),
-                                       paste0(away_team,"2"),
-                               if_else((home_team %in% lt_blue_list) & 
-                                           (away_team %in% lt_blue_list),
-                                       paste0(away_team,"2"),away_team)))))),
+           # add column to flag teams that have the same plot colors
+           mutate(away_team_alt = if_else((home_team %in% black_list) & 
+                                       (away_team %in% black_list),
+                                   paste0(away_team,"2"),
+                           if_else((home_team %in% blue_list) & 
+                                       (away_team %in% blue_list),
+                                   paste0(away_team,"2"),
+                           if_else((home_team %in% green_list) & 
+                                       (away_team %in% green_list),
+                                   paste0(away_team,"2"),
+                           if_else((home_team %in% purple_list) & 
+                                       (away_team %in% purple_list),
+                                   paste0(away_team,"2"),
+                           if_else((home_team %in% red_list) & 
+                                       (away_team %in% red_list),
+                                   paste0(away_team,"2"),
+                           if_else((home_team %in% lt_blue_list) & 
+                                       (away_team %in% lt_blue_list),
+                                   paste0(away_team,"2"),away_team)))))),
                # add column to label when away team has at least 50% wp
                winning_team_away = if_else(away_wp >= 0.5,away_team_alt,home_team),
                # add column to label when home team has at least 50% wp
