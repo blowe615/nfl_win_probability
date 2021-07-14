@@ -138,7 +138,10 @@ export_wp <- function(model,ov_model,pbp_data) {
                 home_wp = case_when(game_results$result > 0 ~ 1, 
                                     game_results$result < 0 ~ 0,
                                     game_results$result == 0 ~ 0.5),
-                away_wp = 1-home_wp) %>%
+                away_wp = 1-home_wp,
+                desc = case_when(game_results$result > 0 ~ paste(home_team,"WINS"),
+                                 game_results$result < 0 ~ paste(away_team,"WINS"),
+                                 game_results$result == 0 ~ "TIE")) %>%
         # add row at end of each game with wp 50% to help with plot shading
         add_row(game_id = game_results$game_id, season=game_results$season,
                 season_type = game_results$season_type,
