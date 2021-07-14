@@ -185,11 +185,13 @@ export_wp <- function(model,ov_model,pbp_data) {
         pbp_filtered %>%
             # filter plays where winning team changes
             filter(wp_chg==1) %>%
-            select(game_id,season,season_type,game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr),
+            select(game_id,season,season_type,game_seconds_remaining,
+                   winning_team,away_wp,wp_chg,wp_chgd,qtr,elapsed_time),
         pbp_filtered %>%
             # filter plays where winning team just changed
             filter(wp_chgd==1) %>%
-            select(game_id,season,season_type,game_seconds_remaining,winning_team,away_wp,wp_chg,wp_chgd,qtr) %>%
+            select(game_id,season,season_type,game_seconds_remaining,
+                   winning_team,away_wp,wp_chg,wp_chgd,qtr,elapsed_time) %>%
             # rename columns with a 2 to avoid duplicates
             rename_with(function(x){paste0(x,"2")})) %>%
         # filter out plays added at the end of the game for plotting
@@ -197,9 +199,9 @@ export_wp <- function(model,ov_model,pbp_data) {
     
     # calculate dummy times (plays that didn't happen in the game) by interpolating
     # between the before/after plays
-    dummy_times <- (wp_chgs$game_seconds_remaining2 - wp_chgs$game_seconds_remaining)/
+    dummy_times <- (wp_chgs$elapsed_time2 - wp_chgs$elapsed_time)/
         (wp_chgs$away_wp2 - wp_chgs$away_wp) * (0.5 - wp_chgs$away_wp) +
-        wp_chgs$game_seconds_remaining
+        wp_chgs$elapsed_time
     
     # calculate quarter_time_remaining from game_seconds_remaining
     dummy_qtr_times <- wp_chgs$game_seconds_remaining + ((wp_chgs$qtr - 4)*900)
@@ -208,12 +210,12 @@ export_wp <- function(model,ov_model,pbp_data) {
     pbp_filtered <- pbp_filtered %>%
         add_row(game_id = wp_chgs$game_id, season = wp_chgs$season,
                 season_type = wp_chgs$season_type,
-                game_seconds_remaining = dummy_times,
+                elapsed_time = dummy_times,
                 quarter_seconds_remaining = dummy_qtr_times, 
                 winning_team = wp_chgs$winning_team,
                 wp=0.5,home_wp = 0.5, away_wp = 0.5) %>%
         # sort pbp data by game_seconds_remaining
-        arrange(game_id,-game_seconds_remaining)
+        arrange(game_id,elapsed_time)
     
     # fill in missing values in dummy plays from previous rows
     pbp_filtered <- pbp_filtered %>%
