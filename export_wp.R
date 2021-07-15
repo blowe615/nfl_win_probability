@@ -103,8 +103,8 @@ export_wp <- function(model,ov_model,pbp_data) {
     pbp_filtered <- full_join(pbp_filtered_reg,pbp_filtered_ov,by=colnames(pbp_filtered_reg)) %>%
         # add column for elapsed time (inverse of game_seconds_remaining)
         mutate(elapsed_time = if_else(qtr<5,3600-game_seconds_remaining,
-                                      if_else(season>2016,4200-game_seconds_remaining,
-                                              4500-game_seconds_remaining))) %>%
+                                      if_else(season<2017,(qtr*900)-game_seconds_remaining,
+                                              3600+((qtr-4)*600)-game_seconds_remaining))) %>%
         arrange(season, game_id, elapsed_time)
     
     # add new columns for home and away wp based on the wp model
