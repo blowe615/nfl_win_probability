@@ -37,7 +37,7 @@ clean_ov_plays <- function(pbp_data){
         select(game_id,home_team,posteam,defteam,game_seconds_remaining,
                score_differential,down,ydstogo,yardline_100,side_of_field,
                posteam_timeouts_remaining,defteam_timeouts_remaining,qtr,drive) %>%
-        filter(qtr==5) %>%
+        filter(qtr>4) %>%
         # group by game_id to perform mutations
         group_by(game_id) %>%
         mutate(first_drive = if_else(drive==first(na.omit(drive)),1,0),
