@@ -52,6 +52,10 @@ export_wp <- function(model,ov_model,pbp_data) {
     #   away_team_alt: flags the away team (by adding a "2") if they have the
     #                   same team color as the home team (for easier plotting)
     
+    # Source required cleaning functions
+    source("clean_plays.R")
+    source("clean_ov_plays.R")
+    
     # manually fix (mutate down, ydstogo, yardline_100) kickoffs to model wp
     # of a touchback
     # add 0.01 seconds to game_seconds_remaining for kickoffs to avoid plotting
@@ -93,10 +97,10 @@ export_wp <- function(model,ov_model,pbp_data) {
     # append "wp" column to filtered pbp data
     pbp_filtered_ov <- pbp_filtered %>%
         filter(qtr>4) %>%
-        bind_cols(wp_preds)
+        bind_cols(wp_preds_ov)
     
     # combine regulation and overtime pbp data with wp added
-    pbp_filtered <- full_join(pbp_filtered_reg,pbp_filtered_ov) %>%
+    pbp_filtered <- full_join(pbp_filtered_reg,pbp_filtered_ov,by=colnames(pbp_filtered_reg)) %>%
         # add column for elapsed time (inverse of game_seconds_remaining)
         mutate(elapsed_time = if_else(qtr<5,3600-game_seconds_remaining,
                                       if_else(season>2016,4200-game_seconds_remaining,
