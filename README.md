@@ -59,21 +59,21 @@ Functions for plotting cross validation and tuning results
 ## Results
 Running `train_wp_model_LOSO.R` will print out the training status for the model, including the beginning and ending of each season and the logloss evaluation metric for each pass of the XGBoost algorithm.
 
-![](https://github.com/blowe615/nfl_win_probability/blob/master/training_output.png)
+![](https://github.com/blowe615/nfl_win_probability/blob/master/images/training_output.png)
 
 Running `plot_wp_model_LOSO.R` will generate plots comparing observed and predicted win probabilities broken up by quarter and 5% bins.
 
-![](https://github.com/blowe615/nfl_win_probability/blob/master/winprobCVplots.png)
+![](https://github.com/blowe615/nfl_win_probability/blob/master/images/winprobCVplots.png)
 
 Running `get_ov_plays.R` followed by `train_tune_plot_ov_model.R` will perform a grid search of the parameters specified in `train_tune_plot_ov_model` to train an XGBoost model on overtime play-by-play data. The results of the grid search will be plotted and displayed in a table so you can identify the model parameters that result in the lowest RMSE or highest correlation.
 
-![](https://github.com/blowe615/nfl_win_probability/blob/master/grid_search_plot.png)
+![](https://github.com/blowe615/nfl_win_probability/blob/master/images/grid_search_plot.png)
 
-![](https://github.com/blowe615/nfl_win_probability/blob/master/grid_search_results.png)
+![](https://github.com/blowe615/nfl_win_probability/blob/master/images/grid_search_results.png)
 
 An example of the win probability dashboard created in Tableau using the 2013 NFC Championship Game.  The interactive visualization can be found [here](https://public.tableau.com/app/profile/brandon.lowe8009/viz/WinProbabilityDashboard/WinProbabilityDashboard?publish=yes).
 
-![](https://github.com/blowe615/nfl_win_probability/blob/master/NFCCG_dashboard.png)
+![](https://github.com/blowe615/nfl_win_probability/blob/master/images/NFCCG_dashboard.png)
 
 The dashboard shows the win probability over the course of the game as well as a list of the 5 plays that had the largest win probability added (WPA). Hovering over any portion of the plot will bring up the game scenario and the play at that time.  Hovering on any of the top plays will highlight on the plot where the play occurred in the game.  The filters on the left side of the dashboard allow the user to pick which game to view.
 
