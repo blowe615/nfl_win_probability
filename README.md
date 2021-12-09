@@ -56,9 +56,11 @@ Running `get_ov_plays.R` followed by `train_tune_plot_ov_model.R` will perform a
 
 ![](https://github.com/blowe615/nfl_win_probability/blob/master/grid_search_results.png)
 
-An example of the win probability chart created in Tableau using Super Bowl LV.  The interactive visualization can be found [here](https://public.tableau.com/profile/brandon.lowe8009#!/vizhome/win_prob_plot/Dashboard1?publish=yes).
+An example of the win probability dashboard created in Tableau using the 2013 NFC Championship Game.  The interactive visualization can be found [here](https://public.tableau.com/app/profile/brandon.lowe8009/viz/WinProbabilityDashboard/WinProbabilityDashboard?publish=yes).
 
-![](https://github.com/blowe615/nfl_win_probability/blob/master/SB_win_prob_chart.png)
+![](https://github.com/blowe615/nfl_win_probability/blob/master/NFCCG_dashboard.png)
+
+The dashboard shows the win probability over the course of the game as well as a list of the 5 plays that had the largest win probability added (WPA). Hovering over any portion of the plot will bring up the game scenario and the play at that time.  Hovering on any of the top plays will highlight on the plot where the play occurred in the game.  The filters on the left side of the dashboard allow the user to pick which game to view.
 
 ## Acknowledgements
 It goes without saying that my work would not have been possible without the work of Ben Baldwin and Sebastian Carl and their [nflfastR](https://github.com/mrcaseb/nflfastR) package.  Their work is based on the original NFL play-by-play scraping package - [nflscrapR](https://github.com/maksimhorowitz/nflscrapR) - created by Maksim Horowitz, Ronald Yurko, and Samuel Ventura.
