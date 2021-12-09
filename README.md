@@ -52,9 +52,9 @@ Running `plot_wp_model_LOSO.R` will generate plots comparing observed and predic
 
 Running `get_ov_plays.R` followed by `train_tune_plot_ov_model.R` will perform a grid search of the parameters specified in `train_tune_plot_ov_model` to train an XGBoost model on overtime play-by-play data. The results of the grid search will be plotted and displayed in a table so you can identify the model parameters that result in the lowest RMSE or highest correlation.
 
-![](https://github.com/blowe615/nfl_win_probability/blobl/master/grid_search_plot.png)
+![](https://github.com/blowe615/nfl_win_probability/blob/master/grid_search_plot.png)
 
-![](https://github.com/blowe615/nfl_win_probability/blobl/master/grid_search_results.png)
+![](https://github.com/blowe615/nfl_win_probability/blob/master/grid_search_results.png)
 
 An example of the win probability chart created in Tableau using Super Bowl LV.  The interactive visualization can be found [here](https://public.tableau.com/profile/brandon.lowe8009#!/vizhome/win_prob_plot/Dashboard1?publish=yes).
 
